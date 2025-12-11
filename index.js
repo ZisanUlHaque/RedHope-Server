@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const app = express()
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 3000
 
 //middleware
@@ -38,17 +38,82 @@ async function run() {
         query.requesterEmail = email;
       }
 
-      const cursor = DonationCollection.find(query);
+      const options = {sort: {createdAt: -1}}
+      const cursor = DonationCollection.find(query,options);
       const result = await cursor.toArray();
       res.send(result);
     })
 
+    // get single donation request by id
+app.get('/donation-requests/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await DonationCollection.findOne(query);
+    res.send(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Failed to get donation request' });
+  }
+});
+
+// update donation request
+app.patch('/donation-requests/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updatedData = req.body;        // ja ja field pathabe, segulai update hobe
+    const filter = { _id: new ObjectId(id) };
+    const updateDoc = {
+      $set: updatedData,
+    };
+
+    const result = await DonationCollection.updateOne(filter, updateDoc);
+    res.send(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Failed to update donation request' });
+  }
+});
+
+// delete donation request
+app.delete('/donation-requests/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await DonationCollection.deleteOne(query);
+    res.send(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Failed to delete donation request' });
+  }
+});
     app.post('/donation-requests',async(req,res)=>{
         const donation = req.body;
+        donation.createdAt = new Date();
         const result = await DonationCollection.insertOne(donation);
         res.send(result);
     })
 
+        app.post('/users', async (req, res) => {
+      try {
+        const user = req.body; // { name, email, avatar, bloodGroup, district, upazila }
+
+        const exists = await usersCollection.findOne({ email: user.email });
+        if (exists) {
+          return res.send({ message: 'user exists' });
+        }
+
+        user.role = 'donor';      // default role
+        user.status = 'active';   // default status
+        user.createdAt = new Date();
+
+        const result = await usersCollection.insertOne(user);
+        res.send(result);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: 'Failed to save user' });
+      }
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
