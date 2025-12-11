@@ -115,6 +115,38 @@ app.delete('/donation-requests/:id', async (req, res) => {
       }
     });
 
+        app.get('/users', async (req, res) => {
+      try {
+        const { status, role, bloodGroup, district, upazila } = req.query;
+        const query = {};
+
+        if (status) {
+          query.status = status; // active | blocked
+        }
+        if (role) {
+          query.role = role; // donor | admin | volunteer
+        }
+        if (bloodGroup) {
+          query.bloodGroup = bloodGroup;
+        }
+        if (district) {
+          query.district = district;
+        }
+        if (upazila) {
+          query.upazila = upazila;
+        }
+
+        const users = await usersCollection
+          .find(query)
+          .sort({ createdAt: -1 })
+          .toArray();
+
+        res.send(users);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: 'Failed to get users' });
+      }
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
