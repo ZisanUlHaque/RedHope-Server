@@ -43,7 +43,21 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     })
+    app.get('/users/profile/:email', async (req, res) => {
+      try {
+        const email = req.params.email;
+        const user = await usersCollection.findOne({ email });
 
+        if (!user) {
+          return res.status(404).send({ message: 'User not found' });
+        }
+
+        res.send(user);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: 'Failed to get user profile' });
+      }
+    });
     // get single donation request by id
 app.get('/donation-requests/:id', async (req, res) => {
   try {
@@ -115,6 +129,21 @@ app.delete('/donation-requests/:id', async (req, res) => {
       }
     });
 
+        app.get('/users/profile/:email', async (req, res) => {
+      try {
+        const email = req.params.email;
+        const user = await usersCollection.findOne({ email });
+
+        if (!user) {
+          return res.status(404).send({ message: 'User not found' });
+        }
+
+        res.send(user);
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: 'Failed to get user profile' });
+      }
+    });
         app.get('/users', async (req, res) => {
       try {
         const { status, role, bloodGroup, district, upazila } = req.query;
