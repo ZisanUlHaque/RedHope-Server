@@ -144,6 +144,17 @@ app.delete('/donation-requests/:id', async (req, res) => {
         res.status(500).send({ message: 'Failed to get user profile' });
       }
     });
+        // role read
+    app.get('/users/:email/role', async (req, res) => {
+      try {
+        const email = req.params.email;
+        const user = await usersCollection.findOne({ email });
+        res.send({ role: user?.role || 'donor' });
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: 'Failed to get user role' });
+      }
+    });
         app.get('/users', async (req, res) => {
       try {
         const { status, role, bloodGroup, district, upazila } = req.query;
