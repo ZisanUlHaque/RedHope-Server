@@ -327,7 +327,7 @@ async function run() {
                 currency: "usd",
                 unit_amount: numericAmount * 100, // dollar -> cent
                 product_data: {
-                  name: "Donation to Our Charity",
+                  name: "Donation to RedHope",
                 },
               },
               quantity: 1,
