@@ -1,2 +1,4 @@
 node_modules
 .env
+redhope-firebase-admin.json
+.vercel
